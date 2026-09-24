@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Online Moderna - GitHub Pages</title>
+    <!-- Tailwind CSS CDN para estilos responsivos y modernos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Fuente Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'neon': '0 0 20px rgba(59, 130, 246, 0.3)',
+                        'soft': '0 10px 30px -5px rgba(0, 0, 0, 0.1)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Animaciones para botones al presionar */
+        .btn-calc {
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-calc:active {
+            transform: scale(0.92);
+        }
+
+        .btn-calc::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s ease-out, height 0.3s ease-out;
+        }
+
+        .btn-calc:active::after {
+            width: 200%;
+            height: 200%;
+        }
+
+        /* Animación para el destello al presionar teclado */
+        .key-active {
+            transform: scale(0.92) !important;
+            filter: brightness(1.2);
+        }
+
+        /* Scrollbar personalizada para el historial */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.3);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(156, 163, 175, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between transition-colors duration-300">
+
+    <!-- Header -->
+    <header class="w-full max-w-5xl mx-auto p-4 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                <i class="fa-solid fa-calculator text-xl text-white"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg leading-tight">CalcPro</h1>
+                <p class="text-xs text-slate-400">Edición GitHub Pages</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <!-- Botón de Historial (Móvil/Toggle) -->
+            <button id="toggle-history-btn" class="p-2.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-all border border-slate-700/50" title="Ver Historial">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+            </button>
+            <!-- Botón de Instrucciones GitHub -->
+            <button id="open-modal-btn" class="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-all border border-slate-700/50 text-sm font-medium">
+                <i class="fa-brands fa-github text-base"></i>
+                <span class="hidden sm:inline">Desplegar en GitHub</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex items-center justify-center p-4 w-full max-w-5xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 w-full max-w-4xl">
+            
+            <!-- Calculadora Principal -->
+            <div class="md:col-span-7 lg:col-span-8 bg-slate-800/80 backdrop-blur-xl border border-slate-700/60 rounded-3xl p-6 shadow-2xl flex flex-col justify-between relative overflow-hidden">
+                
+                <!-- Pantalla de Display -->
+                <div class="bg-slate-950/60 border border-slate-800 rounded-2xl p-5 mb-6 flex flex-col justify-end items-end min-h-[120px] shadow-inner relative overflow-hidden">
+                    <!-- Expresión / Operación previa -->
+                    <div id="expression-display" class="text-slate-400 text-sm font-mono h-6 tracking-wide truncate max-w-full"></div>
+                    <!-- Valor actual -->
+                    <div id="main-display" class="text-4xl sm:text-5xl font-semibold text-white tracking-wider truncate max-w-full transition-all duration-100">0</div>
+                </div>
+
+                <!-- Teclado de Botones -->
+                <div class="grid grid-cols-4 gap-3">
+                    <!-- Fila 1 -->
+                    <button data-key="Clear" class="btn-calc bg-rose-500/20 text-rose-400 hover:bg-rose-500/30 border border-rose-500/30 font-semibold p-4 rounded-2xl text-lg sm:text-xl flex items-center justify-center">AC</button>
+                    <button data-key="Backspace" class="btn-calc bg-slate-700/60 text-slate-300 hover:bg-slate-700 border border-slate-600/40 font-medium p-4 rounded-2xl text-lg sm:text-xl flex items-center justify-center">⌫</button>
+                    <button data-key="%" class="btn-calc bg-slate-700/60 text-slate-300 hover:bg-slate-700 border border-slate-600/40 font-medium p-4 rounded-2xl text-lg sm:text-xl flex items-center justify-center">%</button>
+                    <button data-key="/" class="btn-calc bg-blue-600/80 text-white hover:bg-blue-600 border border-blue-500/40 font-semibold p-4 rounded-2xl text-lg sm:text-xl flex items-center justify-center">÷</button>
+
+                    <!-- Fila 2 -->
+                    <button data-key="7" class="btn-calc bg-slate-700/30 text-slate-100 hover:bg-slate-700/60 border border-slate-700/50 font-medium p-4 rounded-2xl text-lg sm:text-xl flex items-center justify-center">7</button>
+                    <button data-key="8" class="btn-calc bg-slate-700/30 text-slate-100 hover:bg-slate-700/60 border border-slate-700/50 font-medium p-4 rounded-2xl text-lg sm:text-xl flex items-center justify-center">8</button>
+                    <button data-key="9" class="btn-calc bg-slate-700/30 text-slate-100 hover:bg-slate-700/60 border border-slate-700/50 font-medium p-4 rounded-2xl text-lg sm:text-xl flex items-center justify-center">9</button>
+                    <button data-key="*" class="btn-calc bg-blue-600/80 text-white hover:bg-blue-600 border border-blue-500/40 font-semibold p-4 rounded-2xl text-lg sm:text-xl flex items-center justify-center">×</button>
+
+                    <!-- Fila 3 -->
+                    <button data-key="4" class="btn-calc bg-slate-700/30 text-slate-100 hover:bg-slate-700/60 border border-slate-700/50 font-medium p-4 rounded-2xl text-lg sm:text-xl flex items-center justify-center">4</button>
+                    <button data-key="5" class="btn-calc bg-slate-700/30 text-slate-100 hover:bg-slate-700/60 border border-slate-700/50 font-medium p-4 rounded-2xl text-lg sm:text-xl flex items-center justify-center">5</button>
+                    <button data-key="6" class="btn-calc bg-slate-700/30 text-slate-100 hover:bg-slate-700/60 border border-slate-700/50 font-medium p-4 rounded-2xl text-lg sm:text-xl flex items-center justify-center">6</button>
+                    <button data-key="-" class="btn-calc bg-blue-600/80 text-white hover:bg-blue-600 border border-blue-500/40 font-semibold p-4 rounded-2xl text-lg sm:text-xl flex items-center justify-center">-</button>
+
+                    <!-- Fila 4 -->
+                    <button data-key="1" class="btn-calc bg-slate-700/30 text-slate-100 hover:bg-slate-700/60 border border-slate-700/50 font-medium p-4 rounded-2xl text-lg sm:text-xl flex items-center justify-center">1</button>
+                    <button data-key="2" class="btn-calc bg-slate-700/30 text-slate-100 hover:bg-slate-700/60 border border-slate-700/50 font-medium p-4 rounded-2xl text-lg sm:text-xl flex items-center justify-center">2</button>
+                    <button data-key="3" class="btn-calc bg-slate-700/30 text-slate-100 hover:bg-slate-700/60 border border-slate-700/50 font-medium p-4 rounded-2xl text-lg sm:text-xl flex items-center justify-center">3</button>
+                    <button data-key="+" class="btn-calc bg-blue-600/80 text-white hover:bg-blue-600 border border-blue-500/40 font-semibold p-4 rounded-2xl text-lg sm:text-xl flex items-center justify-center">+</button>
+
+                    <!-- Fila 5 -->
+                    <button data-key="PlusMinus" class="btn-calc bg-slate-700/60 text-slate-300 hover:bg-slate-700 border border-slate-600/40 font-medium p-4 rounded-2xl text-lg sm:text-xl flex items-center justify-center">⁺/₋</button>
+                    <button data-key="0" class="btn-calc bg-slate-700/30 text-slate-100 hover:bg-slate-700/60 border border-slate-700/50 font-medium p-4 rounded-2xl text-lg sm:text-xl flex items-center justify-center">0</button>
+                    <button data-key="." class="btn-calc bg-slate-700/30 text-slate-100 hover:bg-slate-700/60 border border-slate-700/50 font-medium p-4 rounded-2xl text-lg sm:text-xl flex items-center justify-center">.</button>
+                    <button data-key="Enter" class="btn-calc bg-indigo-600 text-white hover:bg-indigo-500 border border-indigo-400/40 font-bold p-4 rounded-2xl text-lg sm:text-xl flex items-center justify-center shadow-lg shadow-indigo-600/30">=</button>
+                </div>
+            </div>
+
+            <!-- Panel de Historial (Escritorio / Flotante en Móvil) -->
+            <div id="history-panel" class="hidden md:flex md:col-span-5 lg:col-span-4 bg-slate-800/80 backdrop-blur-xl border border-slate-700/60 rounded-3xl p-5 flex-col justify-between shadow-2xl transition-all duration-300">
+                <div>
+                    <div class="flex justify-between items-center pb-4 mb-3 border-b border-slate-700/60">
+                        <h2 class="font-semibold text-slate-200 flex items-center gap-2">
+                            <i class="fa-solid fa-history text-blue-400"></i> Historial
+                        </h2>
+                        <button id="clear-history-btn" class="text-xs text-slate-400 hover:text-rose-400 transition-colors flex items-center gap-1">
+                            <i class="fa-solid fa-trash-can"></i> Limpiar
+                        </button>
+                    </div>
+
+                    <!-- Lista de Operaciones -->
+                    <div id="history-list" class="space-y-3 max-h-[320px] overflow-y-auto custom-scrollbar pr-1">
+                        <div id="empty-history" class="text-center py-10 text-slate-500 text-sm">
+                            <i class="fa-solid fa-calculator text-3xl mb-2 opacity-30 block"></i>
+                            No hay cálculos recientes
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-slate-700/50 text-xs text-slate-400 text-center">
+                    Haz clic en una operación previa para reutilizarla
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Modal Instrucciones GitHub Pages -->
+    <div id="github-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-slate-800 border border-slate-700 rounded-3xl max-w-2xl w-full p-6 shadow-2xl transform scale-95 transition-transform duration-300 custom-scrollbar max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center pb-4 border-b border-slate-700">
+                <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                    <i class="fa-brands fa-github text-blue-400"></i> Cómo alojar en GitHub Pages
+                </h3>
+                <button id="close-modal-btn" class="text-slate-400 hover:text-white p-2 text-xl">&times;</button>
+            </div>
+
+            <div class="py-4 space-y-4 text-slate-300 text-sm leading-relaxed">
+                <p>Publicar esta calculadora en internet de forma **totalmente gratuita** es fácil con GitHub Pages:</p>
+
+                <ol class="list-decimal list-inside space-y-3 font-normal">
+                    <li class="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50">
+                        <strong class="text-white">Crea un repositorio:</strong> Ve a <a href="https://github.com" target="_blank" class="text-blue-400 underline">GitHub.com</a>, crea un nuevo repositorio público (ej: <code class="bg-slate-800 text-amber-300 px-1.5 py-0.5 rounded">mi-calculadora</code>).
+                    </li>
+                    <li class="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50">
+                        <strong class="text-white">Sube el código:</strong> Guarda todo este código en un archivo llamado estrictamente <code class="bg-slate-800 text-amber-300 px-1.5 py-0.5 rounded">index.html</code> y súbelo a la rama principal (<code class="bg-slate-800 text-blue-300 px-1.5 py-0.5 rounded">main</code> o <code class="bg-slate-800 text-blue-300 px-1.5 py-0.5 rounded">master</code>).
+                    </li>
+                    <li class="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50">
+                        <strong class="text-white">Activa GitHub Pages:</strong>
+                        <ul class="list-disc list-inside ml-4 mt-2 space-y-1 text-slate-400">
+                            <li>Entra a la pestaña <strong class="text-slate-200">Settings</strong> del repositorio.</li>
+                            <li>En el menú izquierdo, selecciona <strong class="text-slate-200">Pages</strong>.</li>
+                            <li>Bajo <strong class="text-slate-200">Build and deployment</strong>, selecciona la rama <code class="text-blue-300">main</code> y guarda.</li>
+                        </ul>
+                    </li>
+                    <li class="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50">
+                        <strong class="text-white">¡Listo!</strong> En 1 o 2 minutos tu web estará activa en una URL como: <br>
+                        <code class="text-emerald-400 font-mono text-xs block mt-1">https://tu-usuario.github.io/mi-calculadora/</code>
+                    </li>
+                </ol>
+            </div>
+
+            <div class="pt-4 border-t border-slate-700 flex justify-end">
+                <button id="close-modal-footer" class="px-5 py-2.5 rounded-xl bg-blue-600 text-white hover:bg-blue-500 font-medium transition-colors">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="w-full max-w-5xl mx-auto p-4 text-center text-xs text-slate-500">
+        Diseñado para GitHub Pages • Listo para desplegar
+    </footer>
+
+    <script>
+        // --- ESTADO DE LA CALCULADORA ---
+        let currentValue = '0';
+        let previousValue = '';
+        let operation = null;
+        let shouldResetDisplay = false;
+        let history = [];
+
+        // --- ELEMENTOS DEL DOM ---
+        const mainDisplay = document.getElementById('main-display');
+        const expressionDisplay = document.getElementById('expression-display');
+        const historyList = document.getElementById('history-list');
+        const emptyHistory = document.getElementById('empty-history');
+        const clearHistoryBtn = document.getElementById('clear-history-btn');
+        
+        // Modal elements
+        const githubModal = document.getElementById('github-modal');
+        const openModalBtn = document.getElementById('open-modal-btn');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const closeModalFooter = document.getElementById('close-modal-footer');
+
+        // Historial Toggle (Móvil)
+        const toggleHistoryBtn = document.getElementById('toggle-history-btn');
+        const historyPanel = document.getElementById('history-panel');
+
+        // --- FUNCIONES DE ACTUALIZACIÓN DEL DISPLAY ---
+        function updateDisplay() {
+            mainDisplay.textContent = formatNumber(currentValue);
+            
+            // Ajustar dinámicamente el tamaño de la fuente si el número es muy largo
+            if (currentValue.length > 10) {
+                mainDisplay.classList.replace('text-4xl', 'text-2xl');
+                mainDisplay.classList.replace('sm:text-5xl', 'sm:text-3xl');
+            } else {
+                mainDisplay.classList.replace('text-2xl', 'text-4xl');
+                mainDisplay.classList.replace('sm:text-3xl', 'sm:text-5xl');
+            }
+        }
+
+        function formatNumber(numStr) {
+            if (numStr === 'Error' || numStr === 'NaN') return 'Error';
+            if (numStr.endsWith('.')) return numStr;
+            
+            const parts = numStr.split('.');
+            parts[0] = Number(parts[0]).toLocaleString('es-ES');
+            return parts.join('.');
+        }
+
+        // --- LÓGICA MATEMÁTICA ---
+        function appendNumber(number) {
+            if (currentValue === '0' || shouldResetDisplay) {
+                currentValue = number;
+                shouldResetDisplay = false;
+            } else {
+                if (currentValue.replace('.', '').length >= 12) return; // Límite de dígitos
+                currentValue += number;
+            }
+            updateDisplay();
+        }
+
+        function appendDecimal() {
+            if (shouldResetDisplay) {
+                currentValue = '0.';
+                shouldResetDisplay = false;
+            } else if (!currentValue.includes('.')) {
+                currentValue += '.';
+            }
+            updateDisplay();
+        }
+
+        function handleOperation(op) {
+            if (operation !== null && !shouldResetDisplay) {
+                compute();
+            }
+            previousValue = currentValue;
+            operation = op;
+            shouldResetDisplay = true;
+
+            const opSymbol = getSymbol(op);
+            expressionDisplay.textContent = `${formatNumber(previousValue)} ${opSymbol}`;
+        }
+
+        function getSymbol(op) {
+            switch(op) {
+                case '+': return '+';
+                case '-': return '-';
+                case '*': return '×';
+                case '/': return '÷';
+                default: return '';
+            }
+        }
+
+        function compute() {
+            let computation;
+            const prev = parseFloat(previousValue);
+            const current = parseFloat(currentValue);
+
+            if (isNaN(prev) || isNaN(current)) return;
+
+            switch (operation) {
+                case '+':
+                    computation = prev + current;
+                    break;
+                case '-':
+                    computation = prev - current;
+                    break;
+                case '*':
+                    computation = prev * current;
+                    break;
+                case '/':
+                    if (current === 0) {
+                        currentValue = 'Error';
+                        expressionDisplay.textContent = '';
+                        operation = null;
+                        updateDisplay();
+                        return;
+                    }
+                    computation = prev / current;
+                    break;
+                default:
+                    return;
+            }
+
+            // Redondear precisión decimal para evitar problemas de coma flotante de JS
+            computation = Math.round(computation * 100000000) / 100000000;
+
+            const fullExpression = `${formatNumber(previousValue)} ${getSymbol(operation)} ${formatNumber(currentValue)} =`;
+            addHistoryItem(fullExpression, computation.toString());
+
+            expressionDisplay.textContent = fullExpression;
+            currentValue = computation.toString();
+            operation = null;
+            shouldResetDisplay = true;
+            updateDisplay();
+        }
+
+        function clearAll() {
+            currentValue = '0';
+            previousValue = '';
+            operation = null;
+            shouldResetDisplay = false;
+            expressionDisplay.textContent = '';
+            updateDisplay();
+        }
+
+        function deleteLast() {
+            if (shouldResetDisplay) return;
+            if (currentValue.length === 1 || (currentValue.length === 2 && currentValue.startsWith('-'))) {
+                currentValue = '0';
+            } else {
+                currentValue = currentValue.slice(0, -1);
+            }
+            updateDisplay();
+        }
+
+        function toggleSign() {
+            if (currentValue === '0' || currentValue === 'Error') return;
+            currentValue = (parseFloat(currentValue) * -1).toString();
+            updateDisplay();
+        }
+
+        function applyPercentage() {
+            if (currentValue === 'Error') return;
+            currentValue = (parseFloat(currentValue) / 100).toString();
+            updateDisplay();
+        }
+
+        // --- MANEJO DEL HISTORIAL ---
+        function addHistoryItem(expr, result) {
+            const item = { expr, result };
+            history.unshift(item);
+            renderHistory();
+        }
+
+        function renderHistory() {
+            if (history.length === 0) {
+                emptyHistory.classList.remove('hidden');
+                historyList.innerHTML = '';
+                historyList.appendChild(emptyHistory);
+                return;
+            }
+
+            emptyHistory.classList.add('hidden');
+            historyList.innerHTML = '';
+
+            history.forEach((item) => {
+                const div = document.createElement('div');
+                div.className = 'p-3 bg-slate-900/50 hover:bg-slate-700/40 rounded-xl cursor-pointer border border-slate-700/40 transition-all text-right group';
+                div.innerHTML = `
+                    <div class="text-xs text-slate-400 font-mono group-hover:text-blue-300 transition-colors">${item.expr}</div>
+                    <div class="text-lg font-semibold text-slate-100">${formatNumber(item.result)}</div>
+                `;
+                div.addEventListener('click', () => {
+                    currentValue = item.result;
+                    shouldResetDisplay = true;
+                    updateDisplay();
+                });
+                historyList.appendChild(div);
+            });
+        }
+
+        clearHistoryBtn.addEventListener('click', () => {
+            history = [];
+            renderHistory();
+        });
+
+        // --- EVENT LISTENERS (BOTONES Clics) ---
+        document.querySelectorAll('.btn-calc').forEach(button => {
+            button.addEventListener('click', () => {
+                const key = button.getAttribute('data-key');
+                handleInput(key);
+            });
+        });
+
+        function handleInput(key) {
+            if (key >= '0' && key <= '9') {
+                appendNumber(key);
+            } else if (key === '.') {
+                appendDecimal();
+            } else if (['+', '-', '*', '/'].includes(key)) {
+                handleOperation(key);
+            } else if (key === 'Enter' || key === '=') {
+                compute();
+            } else if (key === 'Clear' || key === 'Escape') {
+                clearAll();
+            } else if (key === 'Backspace') {
+                deleteLast();
+            } else if (key === 'PlusMinus') {
+                toggleSign();
+            } else if (key === '%') {
+                applyPercentage();
+            }
+        }
+
+        // --- SOPORTE PARA TECLADO FÍSICO ---
+        window.addEventListener('keydown', (e) => {
+            let key = e.key;
+
+            // Normalización de teclas
+            if (key === 'Escape') key = 'Clear';
+            if (key === 'c' || key === 'C') key = 'Clear';
+            if (key === 'x') key = '*';
+
+            const button = document.querySelector(`[data-key="${key}"]`);
+            if (button) {
+                button.classList.add('key-active');
+                setTimeout(() => button.classList.remove('key-active'), 150);
+                handleInput(key);
+            } else if (key === 'Enter') {
+                const enterBtn = document.querySelector(`[data-key="Enter"]`);
+                if (enterBtn) {
+                    enterBtn.classList.add('key-active');
+                    setTimeout(() => enterBtn.classList.remove('key-active'), 150);
+                }
+                handleInput('Enter');
+            }
+        });
+
+        // --- LÓGICA DE MODAL E HISTORIAL FLOTANTE ---
+        function toggleModal(show) {
+            if (show) {
+                githubModal.classList.remove('opacity-0', 'pointer-events-none');
+                githubModal.children[0].classList.remove('scale-95');
+                githubModal.children[0].classList.add('scale-100');
+            } else {
+                githubModal.classList.add('opacity-0', 'pointer-events-none');
+                githubModal.children[0].classList.remove('scale-100');
+                githubModal.children[0].classList.add('scale-95');
+            }
+        }
+
+        openModalBtn.addEventListener('click', () => toggleModal(true));
+        closeModalBtn.addEventListener('click', () => toggleModal(false));
+        closeModalFooter.addEventListener('click', () => toggleModal(false));
+        githubModal.addEventListener('click', (e) => {
+            if (e.target === githubModal) toggleModal(false);
+        });
+
+        // Mostrar / Ocultar Historial en dispositivos móviles
+        toggleHistoryBtn.addEventListener('click', () => {
+            if (historyPanel.classList.contains('hidden')) {
+                historyPanel.classList.remove('hidden');
+                historyPanel.classList.add('flex', 'col-span-12');
+            } else {
+                historyPanel.classList.add('hidden');
+                historyPanel.classList.remove('flex', 'col-span-12');
+            }
+        });
+
+        // Inicializar display
+        updateDisplay();
+    </script>
+</body>
+</html>
