@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CalcPro - Calculadora de Intereses</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Fuente Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'soft-glow': '0 20px 50px -10px rgba(15, 23, 42, 0.8)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Scrollbar personalizada */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.4);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(148, 163, 184, 0.6);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+
+    <!-- Header -->
+    <header class="w-full max-w-6xl mx-auto p-4 sm:p-6 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                <i class="fa-solid fa-chart-line text-2xl text-white"></i>
+            </div>
+            <div>
+                <h1 class="font-extrabold text-xl tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">CalcPro <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">Intereses</span></h1>
+                <p class="text-xs text-slate-400">Simulador Financiero Profesional</p>
+            </div>
+        </div>
+
+        <div>
+            <!-- Botón de regreso a la Calculadora -->
+            <a href="index.html" class="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-900/80 text-slate-300 hover:text-white hover:bg-slate-800 transition-all border border-slate-800 text-sm font-medium shadow-md">
+                <i class="fa-solid fa-calculator text-blue-400"></i>
+                <span class="hidden sm:inline">Calculadora Standard</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 w-full max-w-6xl mx-auto p-4 sm:p-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Panel de Entrada de Datos -->
+            <div class="lg:col-span-5 bg-slate-900/70 backdrop-blur-2xl border border-slate-800/80 rounded-3xl p-5 sm:p-7 shadow-soft-glow flex flex-col justify-between">
+                <div>
+                    <!-- Selector Tipo de Interés -->
+                    <div class="flex rounded-2xl bg-slate-950 p-1.5 mb-6 border border-slate-800">
+                        <button id="btn-tipo-simple" class="flex-1 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-indigo-600 text-white shadow-md">
+                            Interés Simple
+                        </button>
+                        <button id="btn-tipo-compuesto" class="flex-1 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all text-slate-400 hover:text-white">
+                            Interés Compuesto
+                        </button>
+                    </div>
+
+                    <!-- Formulario de Parámetros -->
+                    <div class="space-y-4">
+                        <!-- Capital Inicial -->
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1.5">Capital Inicial ($)</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">$</span>
+                                <input type="number" id="capital" value="10000" min="0" step="100" class="w-full bg-slate-950 border border-slate-800 rounded-2xl py-3 pl-8 pr-4 text-white text-sm font-semibold focus:outline-none focus:border-indigo-500 transition-colors">
+                            </div>
+                        </div>
+
+                        <!-- Tasa de Interés Anual -->
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1.5">Tasa de Interés Anual (%)</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">%</span>
+                                <input type="number" id="tasa" value="8" min="0" step="0.1" class="w-full bg-slate-950 border border-slate-800 rounded-2xl py-3 pl-8 pr-4 text-white text-sm font-semibold focus:outline-none focus:border-indigo-500 transition-colors">
+                            </div>
+                        </div>
+
+                        <!-- Plazo -->
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1.5">Tiempo / Plazo</label>
+                                <input type="number" id="tiempo" value="5" min="1" class="w-full bg-slate-950 border border-slate-800 rounded-2xl py-3 px-4 text-white text-sm font-semibold focus:outline-none focus:border-indigo-500 transition-colors">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1.5">Unidad</label>
+                                <select id="unidad-tiempo" class="w-full bg-slate-950 border border-slate-800 rounded-2xl py-3 px-3 text-white text-sm font-semibold focus:outline-none focus:border-indigo-500 transition-colors">
+                                    <option value="anios">Años</option>
+                                    <option value="meses">Meses</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Frecuencia de Capitalización (Solo Compuesto) -->
+                        <div id="container-frecuencia" class="hidden">
+                            <label class="block text-xs font-medium text-slate-400 mb-1.5">Capitalización del Interés</label>
+                            <select id="frecuencia" class="w-full bg-slate-950 border border-slate-800 rounded-2xl py-3 px-3 text-white text-sm font-semibold focus:outline-none focus:border-indigo-500 transition-colors">
+                                <option value="1">Anual (1 vez al año)</option>
+                                <option value="2">Semestral (2 veces al año)</option>
+                                <option value="4">Trimestral (4 veces al año)</option>
+                                <option value="12" selected>Mensual (12 veces al año)</option>
+                                <option value="365">Diaria (365 veces al año)</option>
+                            </select>
+                        </div>
+
+                        <!-- Aportación Adicional Mensual -->
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1.5">Aportación Mensual Adicional ($)</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">$</span>
+                                <input type="number" id="aportacion" value="200" min="0" step="50" class="w-full bg-slate-950 border border-slate-800 rounded-2xl py-3 pl-8 pr-4 text-white text-sm font-semibold focus:outline-none focus:border-indigo-500 transition-colors">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="btn-calcular" class="w-full mt-6 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm shadow-lg shadow-indigo-600/30 transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-calculator"></i>
+                    Calcular Proyección
+                </button>
+            </div>
+
+            <!-- Panel de Resultados y Tabla -->
+            <div class="lg:col-span-7 space-y-6">
+                
+                <!-- Tarjetas de Resumen -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <!-- Total Acumulado -->
+                    <div class="bg-slate-900/70 border border-slate-800/80 rounded-3xl p-5 shadow-soft-glow">
+                        <p class="text-xs text-slate-400 font-medium mb-1">Monto Final Total</p>
+                        <h3 id="res-monto-final" class="text-xl sm:text-2xl font-bold text-emerald-400">$0.00</h3>
+                    </div>
+                    <!-- Intereses Ganados -->
+                    <div class="bg-slate-900/70 border border-slate-800/80 rounded-3xl p-5 shadow-soft-glow">
+                        <p class="text-xs text-slate-400 font-medium mb-1">Total Intereses</p>
+                        <h3 id="res-total-interes" class="text-xl sm:text-2xl font-bold text-indigo-400">$0.00</h3>
+                    </div>
+                    <!-- Total Depositado -->
+                    <div class="bg-slate-900/70 border border-slate-800/80 rounded-3xl p-5 shadow-soft-glow">
+                        <p class="text-xs text-slate-400 font-medium mb-1">Total Invertido</p>
+                        <h3 id="res-total-invertido" class="text-xl sm:text-2xl font-bold text-slate-200">$0.00</h3>
+                    </div>
+                </div>
+
+                <!-- Tabla de Proyección -->
+                <div class="bg-slate-900/70 backdrop-blur-2xl border border-slate-800/80 rounded-3xl p-5 shadow-soft-glow">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-sm text-slate-200 flex items-center gap-2">
+                            <i class="fa-solid fa-table text-indigo-400"></i> Tabla de Proyección Periodo por Periodo
+                        </h3>
+                    </div>
+
+                    <div class="overflow-x-auto max-h-[380px] custom-scrollbar">
+                        <table class="w-full text-right text-xs">
+                            <thead class="bg-slate-950 text-slate-400 sticky top-0 uppercase tracking-wider font-semibold">
+                                <tr>
+                                    <th class="p-3 text-center rounded-l-xl">Periodo</th>
+                                    <th class="p-3">Depósito Acum.</th>
+                                    <th class="p-3">Interés Periodo</th>
+                                    <th class="p-3">Interés Acum.</th>
+                                    <th class="p-3 text-right rounded-r-xl">Saldo Final</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-cuerpo" class="divide-y divide-slate-800/60 font-mono text-slate-300">
+                                <!-- Filas dinámicas -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full max-w-6xl mx-auto p-4 text-center text-xs text-slate-500">
+        CalcPro Intereses • Optimizado para GitHub Pages
+    </footer>
+
+    <script>
+        // --- ESTADO Y MODO ---
+        let tipoCalculo = 'simple'; // 'simple' o 'compuesto'
+
+        // DOM elements
+        const btnSimple = document.getElementById('btn-tipo-simple');
+        const btnCompuesto = document.getElementById('btn-tipo-compuesto');
+        const containerFrecuencia = document.getElementById('container-frecuencia');
+        
+        const inputCapital = document.getElementById('capital');
+        const inputTasa = document.getElementById('tasa');
+        const inputTiempo = document.getElementById('tiempo');
+        const selectUnidadTiempo = document.getElementById('unidad-tiempo');
+        const selectFrecuencia = document.getElementById('frecuencia');
+        const inputAportacion = document.getElementById('aportacion');
+
+        const resMontoFinal = document.getElementById('res-monto-final');
+        const resTotalInteres = document.getElementById('res-total-interes');
+        const resTotalInvertido = document.getElementById('res-total-invertido');
+        const tablaCuerpo = document.getElementById('tabla-cuerpo');
+        const btnCalcular = document.getElementById('btn-calcular');
+
+        // Toggle Tipo de Interés
+        btnSimple.addEventListener('click', () => {
+            tipoCalculo = 'simple';
+            btnSimple.className = "flex-1 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-indigo-600 text-white shadow-md";
+            btnCompuesto.className = "flex-1 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all text-slate-400 hover:text-white";
+            containerFrecuencia.classList.add('hidden');
+            calcular();
+        });
+
+        btnCompuesto.addEventListener('click', () => {
+            tipoCalculo = 'compuesto';
+            btnCompuesto.className = "flex-1 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-indigo-600 text-white shadow-md";
+            btnSimple.className = "flex-1 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all text-slate-400 hover:text-white";
+            containerFrecuencia.classList.remove('hidden');
+            calcular();
+        });
+
+        function formatUSD(amount) {
+            return '$' + amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function calcular() {
+            const P = parseFloat(inputCapital.value) || 0;
+            const rAnual = (parseFloat(inputTasa.value) || 0) / 100;
+            let tValor = parseFloat(inputTiempo.value) || 0;
+            const unidad = selectUnidadTiempo.value;
+            const pmt = parseFloat(inputAportacion.value) || 0; // Aportación mensual
+
+            // Convertir tiempo total a meses
+            const mesesTotales = unidad === 'anios' ? Math.round(tValor * 12) : Math.round(tValor);
+
+            if (mesesTotales <= 0) return;
+
+            let saldoInicial = P;
+            let totalDepositado = P;
+            let totalInteresAcumulado = 0;
+
+            tablaCuerpo.innerHTML = '';
+
+            if (tipoCalculo === 'simple') {
+                const tasaMensual = rAnual / 12;
+
+                for (let m = 1; m <= mesesTotales; m++) {
+                    // En interés simple, el interés del periodo se calcula sobre el capital base original + aportaciones acumuladas
+                    totalDepositado += (m === 1 ? 0 : pmt);
+                    
+                    const interesPeriodo = totalDepositado * tasaMensual;
+                    totalInteresAcumulado += interesPeriodo;
+                    const saldoFinal = totalDepositado + totalInteresAcumulado;
+
+                    agregarFilaTabla(m, totalDepositado, interesPeriodo, totalInteresAcumulado, saldoFinal);
+                }
+
+            } else {
+                // Interés Compuesto mes a mes
+                const nComp : number = parseInt(selectFrecuencia.value) || 12; 
+                // Tasa efectiva por periodo de capitalización
+                const tasaEfectivaMensual = Math.pow(1 + rAnual / nComp, nComp / 12) - 1;
+
+                let saldoActual = P;
+
+                for (let m = 1; m <= mesesTotales; m++) {
+                    if (m > 1) {
+                        saldoActual += pmt;
+                        totalDepositado += pmt;
+                    }
+
+                    const interesPeriodo = saldoActual * tasaEfectivaMensual;
+                    totalInteresAcumulado += interesPeriodo;
+                    saldoActual += interesPeriodo;
+
+                    agregarFilaTabla(m, totalDepositado, interesPeriodo, totalInteresAcumulado, saldoActual);
+                }
+            }
+
+            // Actualizar tarjetas resumen
+            const montoFinalTotal = totalDepositado + totalInteresAcumulado;
+            resMontoFinal.textContent = formatUSD(montoFinalTotal);
+            resTotalInteres.textContent = formatUSD(totalInteresAcumulado);
+            resTotalInvertido.textContent = formatUSD(totalDepositado);
+        }
+
+        function agregarFilaTabla(periodo, depositado, interesPeriodo, interesAcum, saldoFinal) {
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-slate-800/40 transition-colors";
+            tr.innerHTML = `
+                <td class="p-3 text-center text-slate-400 font-sans">${periodo}</td>
+                <td class="p-3">${formatUSD(depositado)}</td>
+                <td class="p-3 text-indigo-300">+${formatUSD(interesPeriodo)}</td>
+                <td class="p-3 text-indigo-400">${formatUSD(interesAcum)}</td>
+                <td class="p-3 text-right font-bold text-emerald-400">${formatUSD(saldoFinal)}</td>
+            `;
+            tablaCuerpo.appendChild(tr);
+        }
+
+        // Event Listeners para recálculo automático
+        [inputCapital, inputTasa, inputTiempo, selectUnidadTiempo, selectFrecuencia, inputAportacion].forEach(element => {
+            element.addEventListener('input', calcular);
+            element.addEventListener('change', calcular);
+        });
+
+        btnCalcular.addEventListener('click', calcular);
+
+        // Inicializar cálculo al cargar
+        calcular();
+    </script>
+</body>
+</html>
