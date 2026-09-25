@@ -96,11 +96,20 @@
             </div>
         </div>
 
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2 sm:gap-3">
+            <!-- Botón Link a Intereses -->
+            <a href="intereses.html" class="flex items-center gap-2 px-3.5 py-2.5 rounded-2xl bg-indigo-600/20 text-indigo-300 hover:text-white hover:bg-indigo-600 transition-all border border-indigo-500/30 text-sm font-medium shadow-md">
+                <i class="fa-solid fa-percent text-indigo-400"></i>
+                <span class="hidden sm:inline">Intereses</span>
+            </a>
+
+            <!-- Botón Historial -->
             <button id="toggle-history-btn" class="p-2.5 rounded-2xl bg-slate-900/80 text-slate-300 hover:text-white hover:bg-slate-800 transition-all border border-slate-800 shadow-md" title="Ver Historial">
                 <i class="fa-solid fa-clock-rotate-left"></i>
             </button>
-            <button id="open-modal-btn" class="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-900/80 text-slate-300 hover:text-white hover:bg-slate-800 transition-all border border-slate-800 text-sm font-medium shadow-md">
+
+            <!-- Botón Desplegar -->
+            <button id="open-modal-btn" class="flex items-center gap-2 px-3.5 py-2.5 rounded-2xl bg-slate-900/80 text-slate-300 hover:text-white hover:bg-slate-800 transition-all border border-slate-800 text-sm font-medium shadow-md">
                 <i class="fa-brands fa-github text-lg text-blue-400"></i>
                 <span class="hidden sm:inline">Desplegar</span>
             </button>
