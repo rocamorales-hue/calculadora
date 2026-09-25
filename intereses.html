@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CalcPro - Calculadora de Intereses</title>
+    <title>CalcPro Master - Simulación & Proyección Financiera</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js para visualización financiera -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Fuente Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <script>
         tailwind.config = {
@@ -21,6 +23,8 @@
                     },
                     boxShadow: {
                         'soft-glow': '0 20px 50px -10px rgba(15, 23, 42, 0.8)',
+                        'neon-indigo': '0 0 25px rgba(99, 102, 241, 0.4)',
+                        'neon-emerald': '0 0 25px rgba(16, 185, 129, 0.4)',
                     }
                 }
             }
@@ -30,6 +34,8 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         /* Scrollbar personalizada */
@@ -52,19 +58,19 @@
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
 
     <!-- Header -->
-    <header class="w-full max-w-6xl mx-auto p-4 sm:p-6 flex justify-between items-center">
+    <header class="w-full max-w-7xl mx-auto p-4 sm:p-6 flex justify-between items-center">
         <div class="flex items-center gap-3">
             <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
                 <i class="fa-solid fa-chart-line text-2xl text-white"></i>
             </div>
             <div>
-                <h1 class="font-extrabold text-xl tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">CalcPro <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">Intereses</span></h1>
-                <p class="text-xs text-slate-400">Simulador Financiero Profesional</p>
+                <h1 class="font-extrabold text-xl tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">CalcPro <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">Financial Suite v3.0</span></h1>
+                <p class="text-xs text-slate-400">Simulador de Interés Avanzado & Análisis de Rendimiento</p>
             </div>
         </div>
 
         <div>
-            <!-- Botón de regreso a la Calculadora -->
+            <!-- Botón de regreso a la Calculadora Standard -->
             <a href="index.html" class="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-900/80 text-slate-300 hover:text-white hover:bg-slate-800 transition-all border border-slate-800 text-sm font-medium shadow-md">
                 <i class="fa-solid fa-calculator text-blue-400"></i>
                 <span class="hidden sm:inline">Calculadora Standard</span>
@@ -73,50 +79,57 @@
     </header>
 
     <!-- Main Content -->
-    <main class="flex-1 w-full max-w-6xl mx-auto p-4 sm:p-6">
+    <main class="flex-1 w-full max-w-7xl mx-auto p-4 sm:p-6 space-y-6">
+        
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
-            <!-- Panel de Entrada de Datos -->
-            <div class="lg:col-span-5 bg-slate-900/70 backdrop-blur-2xl border border-slate-800/80 rounded-3xl p-5 sm:p-7 shadow-soft-glow flex flex-col justify-between">
+            <!-- Panel de Parámetros Financieros (Columna Izquierda) -->
+            <div class="lg:col-span-5 bg-slate-900/70 backdrop-blur-2xl border border-slate-800/80 rounded-3xl p-5 sm:p-7 shadow-soft-glow flex flex-col justify-between space-y-6">
                 <div>
-                    <!-- Selector Tipo de Interés -->
+                    <!-- Selector de Modalidad -->
                     <div class="flex rounded-2xl bg-slate-950 p-1.5 mb-6 border border-slate-800">
-                        <button id="btn-tipo-simple" class="flex-1 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-indigo-600 text-white shadow-md">
-                            Interés Simple
+                        <button id="btn-tipo-compuesto" class="flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all bg-indigo-600 text-white shadow-md flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-arrow-up-right-dots"></i> Interés Compuesto
                         </button>
-                        <button id="btn-tipo-compuesto" class="flex-1 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all text-slate-400 hover:text-white">
-                            Interés Compuesto
+                        <button id="btn-tipo-simple" class="flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-slate-400 hover:text-white flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-lines-leaning"></i> Interés Simple
                         </button>
                     </div>
 
-                    <!-- Formulario de Parámetros -->
+                    <!-- Campos de Entrada -->
                     <div class="space-y-4">
                         <!-- Capital Inicial -->
                         <div>
-                            <label class="block text-xs font-medium text-slate-400 mb-1.5">Capital Inicial ($)</label>
+                            <div class="flex justify-between items-center mb-1.5">
+                                <label class="text-xs font-semibold text-slate-300">Capital Inicial ($)</label>
+                                <span class="text-[10px] text-slate-500">Monto base invertido</span>
+                            </div>
                             <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">$</span>
-                                <input type="number" id="capital" value="10000" min="0" step="100" class="w-full bg-slate-950 border border-slate-800 rounded-2xl py-3 pl-8 pr-4 text-white text-sm font-semibold focus:outline-none focus:border-indigo-500 transition-colors">
+                                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500 font-bold">$</span>
+                                <input type="number" id="capital" value="25000" min="0" step="100" class="w-full bg-slate-950 border border-slate-800 rounded-2xl py-3 pl-8 pr-4 text-white text-sm font-semibold focus:outline-none focus:border-indigo-500 transition-colors">
                             </div>
                         </div>
 
-                        <!-- Tasa de Interés Anual -->
+                        <!-- Tasa de Interés Anual y Muestra Ajustada -->
                         <div>
-                            <label class="block text-xs font-medium text-slate-400 mb-1.5">Tasa de Interés Anual (%)</label>
+                            <div class="flex justify-between items-center mb-1.5">
+                                <label class="text-xs font-semibold text-slate-300">Tasa de Rendimiento Anual (%)</label>
+                                <span id="tasa-mensual-badge" class="text-[10px] font-mono text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-md border border-indigo-500/20">0.83% mens.</span>
+                            </div>
                             <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">%</span>
-                                <input type="number" id="tasa" value="8" min="0" step="0.1" class="w-full bg-slate-950 border border-slate-800 rounded-2xl py-3 pl-8 pr-4 text-white text-sm font-semibold focus:outline-none focus:border-indigo-500 transition-colors">
+                                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500 font-bold">%</span>
+                                <input type="number" id="tasa" value="10" min="0" step="0.1" class="w-full bg-slate-950 border border-slate-800 rounded-2xl py-3 pl-8 pr-4 text-white text-sm font-semibold focus:outline-none focus:border-indigo-500 transition-colors">
                             </div>
                         </div>
 
-                        <!-- Plazo -->
+                        <!-- Plazo del Cálculo -->
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-xs font-medium text-slate-400 mb-1.5">Tiempo / Plazo</label>
-                                <input type="number" id="tiempo" value="5" min="1" class="w-full bg-slate-950 border border-slate-800 rounded-2xl py-3 px-4 text-white text-sm font-semibold focus:outline-none focus:border-indigo-500 transition-colors">
+                                <label class="block text-xs font-semibold text-slate-300 mb-1.5">Plazo de Inversión</label>
+                                <input type="number" id="tiempo" value="10" min="1" class="w-full bg-slate-950 border border-slate-800 rounded-2xl py-3 px-4 text-white text-sm font-semibold focus:outline-none focus:border-indigo-500 transition-colors">
                             </div>
                             <div>
-                                <label class="block text-xs font-medium text-slate-400 mb-1.5">Unidad</label>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1.5">Unidad de Tiempo</label>
                                 <select id="unidad-tiempo" class="w-full bg-slate-950 border border-slate-800 rounded-2xl py-3 px-3 text-white text-sm font-semibold focus:outline-none focus:border-indigo-500 transition-colors">
                                     <option value="anios">Años</option>
                                     <option value="meses">Meses</option>
@@ -124,9 +137,9 @@
                             </div>
                         </div>
 
-                        <!-- Frecuencia de Capitalización (Solo Compuesto) -->
-                        <div id="container-frecuencia" class="hidden">
-                            <label class="block text-xs font-medium text-slate-400 mb-1.5">Capitalización del Interés</label>
+                        <!-- Capitalización (Compuesto) -->
+                        <div id="container-frecuencia">
+                            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Frecuencia de Capitalización</label>
                             <select id="frecuencia" class="w-full bg-slate-950 border border-slate-800 rounded-2xl py-3 px-3 text-white text-sm font-semibold focus:outline-none focus:border-indigo-500 transition-colors">
                                 <option value="1">Anual (1 vez al año)</option>
                                 <option value="2">Semestral (2 veces al año)</option>
@@ -136,58 +149,108 @@
                             </select>
                         </div>
 
-                        <!-- Aportación Adicional Mensual -->
+                        <!-- Aportaciones Adicionales Periodicas -->
                         <div>
-                            <label class="block text-xs font-medium text-slate-400 mb-1.5">Aportación Mensual Adicional ($)</label>
+                            <div class="flex justify-between items-center mb-1.5">
+                                <label class="text-xs font-semibold text-slate-300">Aportación Periódica ($)</label>
+                                <select id="frecuencia-aportacion" class="text-[10px] bg-slate-900 text-indigo-300 font-semibold rounded-md border border-slate-700 px-1.5 py-0.5 focus:outline-none">
+                                    <option value="12">Mensual</option>
+                                    <option value="1">Anual</option>
+                                </select>
+                            </div>
                             <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">$</span>
-                                <input type="number" id="aportacion" value="200" min="0" step="50" class="w-full bg-slate-950 border border-slate-800 rounded-2xl py-3 pl-8 pr-4 text-white text-sm font-semibold focus:outline-none focus:border-indigo-500 transition-colors">
+                                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500 font-bold">$</span>
+                                <input type="number" id="aportacion" value="500" min="0" step="50" class="w-full bg-slate-950 border border-slate-800 rounded-2xl py-3 pl-8 pr-4 text-white text-sm font-semibold focus:outline-none focus:border-indigo-500 transition-colors">
+                            </div>
+                        </div>
+
+                        <!-- Ajuste Inflacionario -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1.5">
+                                <label class="text-xs font-semibold text-slate-300">Tasa de Inflación Estimada Anual (%)</label>
+                                <span class="text-[10px] text-slate-500">Para cálculo en valor real</span>
+                            </div>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500 font-bold">%</span>
+                                <input type="number" id="inflacion" value="4.0" min="0" step="0.1" class="w-full bg-slate-950 border border-slate-800 rounded-2xl py-3 pl-8 pr-4 text-white text-sm font-semibold focus:outline-none focus:border-indigo-500 transition-colors">
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <button id="btn-calcular" class="w-full mt-6 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm shadow-lg shadow-indigo-600/30 transition-all flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-calculator"></i>
-                    Calcular Proyección
+                <button id="btn-calcular" class="w-full py-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-sm shadow-neon-indigo transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    Simular Proyección Financiera
                 </button>
             </div>
 
-            <!-- Panel de Resultados y Tabla -->
+            <!-- Panel de Resultados, Gráficos y Métricas (Columna Derecha) -->
             <div class="lg:col-span-7 space-y-6">
                 
-                <!-- Tarjetas de Resumen -->
+                <!-- Tarjetas de Métricas Ejecutivas -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <!-- Total Acumulado -->
-                    <div class="bg-slate-900/70 border border-slate-800/80 rounded-3xl p-5 shadow-soft-glow">
-                        <p class="text-xs text-slate-400 font-medium mb-1">Monto Final Total</p>
-                        <h3 id="res-monto-final" class="text-xl sm:text-2xl font-bold text-emerald-400">$0.00</h3>
+                    <!-- Capital Final Proyectado -->
+                    <div class="bg-slate-900/70 border border-slate-800/80 rounded-3xl p-5 shadow-soft-glow relative overflow-hidden">
+                        <div class="absolute -right-3 -top-3 w-16 h-16 bg-emerald-500/10 rounded-full blur-xl"></div>
+                        <p class="text-xs text-slate-400 font-medium mb-1 flex items-center gap-1.5">
+                            <i class="fa-solid fa-vault text-emerald-400"></i> Monto Final Nominal
+                        </p>
+                        <h3 id="res-monto-final" class="text-xl sm:text-2xl font-black text-emerald-400 font-mono tracking-tight">$0.00</h3>
+                        <p id="res-monto-real" class="text-[11px] text-slate-400 mt-1">Ajustado por inflación: $0.00</p>
                     </div>
-                    <!-- Intereses Ganados -->
-                    <div class="bg-slate-900/70 border border-slate-800/80 rounded-3xl p-5 shadow-soft-glow">
-                        <p class="text-xs text-slate-400 font-medium mb-1">Total Intereses</p>
-                        <h3 id="res-total-interes" class="text-xl sm:text-2xl font-bold text-indigo-400">$0.00</h3>
+
+                    <!-- Total Intereses Ganados -->
+                    <div class="bg-slate-900/70 border border-slate-800/80 rounded-3xl p-5 shadow-soft-glow relative overflow-hidden">
+                        <div class="absolute -right-3 -top-3 w-16 h-16 bg-indigo-500/10 rounded-full blur-xl"></div>
+                        <p class="text-xs text-slate-400 font-medium mb-1 flex items-center gap-1.5">
+                            <i class="fa-solid fa-seedling text-indigo-400"></i> Intereses Ganados
+                        </p>
+                        <h3 id="res-total-interes" class="text-xl sm:text-2xl font-black text-indigo-400 font-mono tracking-tight">$0.00</h3>
+                        <p id="res-multiplicador" class="text-[11px] text-indigo-300 font-semibold mt-1">Multiplicador: 0.0x</p>
                     </div>
-                    <!-- Total Depositado -->
-                    <div class="bg-slate-900/70 border border-slate-800/80 rounded-3xl p-5 shadow-soft-glow">
-                        <p class="text-xs text-slate-400 font-medium mb-1">Total Invertido</p>
-                        <h3 id="res-total-invertido" class="text-xl sm:text-2xl font-bold text-slate-200">$0.00</h3>
+
+                    <!-- Total Invertido (Principal) -->
+                    <div class="bg-slate-900/70 border border-slate-800/80 rounded-3xl p-5 shadow-soft-glow relative overflow-hidden">
+                        <p class="text-xs text-slate-400 font-medium mb-1 flex items-center gap-1.5">
+                            <i class="fa-solid fa-piggy-bank text-slate-400"></i> Total Depositado
+                        </p>
+                        <h3 id="res-total-invertido" class="text-xl sm:text-2xl font-black text-slate-200 font-mono tracking-tight">$0.00</h3>
+                        <p id="res-porcentaje-interes" class="text-[11px] text-slate-400 mt-1">Interés generado: 0%</p>
                     </div>
                 </div>
 
-                <!-- Tabla de Proyección -->
+                <!-- Gráfico de Crecimiento Financiero -->
+                <div class="bg-slate-900/70 backdrop-blur-2xl border border-slate-800/80 rounded-3xl p-5 shadow-soft-glow space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-bold text-sm text-slate-200 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-area text-indigo-400"></i> Proyección Visual del Crecimiento
+                        </h3>
+                        <div class="flex items-center gap-3 text-[11px] font-semibold">
+                            <span class="flex items-center gap-1 text-slate-400"><span class="w-2.5 h-2.5 rounded-full bg-slate-600 inline-block"></span> Principal</span>
+                            <span class="flex items-center gap-1 text-indigo-400"><span class="w-2.5 h-2.5 rounded-full bg-indigo-500 inline-block"></span> Intereses</span>
+                        </div>
+                    </div>
+                    <div class="h-56 relative w-full">
+                        <canvas id="chartProyeccion"></canvas>
+                    </div>
+                </div>
+
+                <!-- Tabla de Proyección Detallada -->
                 <div class="bg-slate-900/70 backdrop-blur-2xl border border-slate-800/80 rounded-3xl p-5 shadow-soft-glow">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="font-bold text-sm text-slate-200 flex items-center gap-2">
-                            <i class="fa-solid fa-table text-indigo-400"></i> Tabla de Proyección Periodo por Periodo
+                            <i class="fa-solid fa-list-check text-indigo-400"></i> Tabla de Amortización / Rendimientos
                         </h3>
+                        <button id="btn-toggle-desglose" class="text-xs text-indigo-400 hover:text-indigo-300 font-semibold transition-colors flex items-center gap-1">
+                            <i class="fa-solid fa-eye"></i> <span id="text-desglose">Ver visión Anual</span>
+                        </button>
                     </div>
 
-                    <div class="overflow-x-auto max-h-[380px] custom-scrollbar">
+                    <div class="overflow-x-auto max-h-[300px] custom-scrollbar">
                         <table class="w-full text-right text-xs">
                             <thead class="bg-slate-950 text-slate-400 sticky top-0 uppercase tracking-wider font-semibold">
                                 <tr>
-                                    <th class="p-3 text-center rounded-l-xl">Periodo</th>
+                                    <th id="th-periodo" class="p-3 text-center rounded-l-xl">Periodo</th>
                                     <th class="p-3">Depósito Acum.</th>
                                     <th class="p-3">Interés Periodo</th>
                                     <th class="p-3">Interés Acum.</th>
@@ -206,15 +269,17 @@
     </main>
 
     <!-- Footer -->
-    <footer class="w-full max-w-6xl mx-auto p-4 text-center text-xs text-slate-500">
-        CalcPro Intereses • Optimizado para GitHub Pages
+    <footer class="w-full max-w-7xl mx-auto p-4 text-center text-xs text-slate-500">
+        CalcPro Financial Engine • Desarrollado para análisis financiero avanzado
     </footer>
 
     <script>
-        // --- ESTADO Y MODO ---
-        let tipoCalculo = 'simple'; // 'simple' o 'compuesto'
+        // --- ESTADO Y CONFIGURACIÓN ---
+        let tipoCalculo = 'compuesto'; // 'compuesto' o 'simple'
+        let vistaAnual = true;
+        let chartInstance = null;
 
-        // DOM elements
+        // DOM Elements
         const btnSimple = document.getElementById('btn-tipo-simple');
         const btnCompuesto = document.getElementById('btn-tipo-compuesto');
         const containerFrecuencia = document.getElementById('container-frecuencia');
@@ -225,27 +290,44 @@
         const selectUnidadTiempo = document.getElementById('unidad-tiempo');
         const selectFrecuencia = document.getElementById('frecuencia');
         const inputAportacion = document.getElementById('aportacion');
+        const selectFrecuenciaAportacion = document.getElementById('frecuencia-aportacion');
+        const inputInflacion = document.getElementById('inflacion');
 
+        const tasaMensualBadge = document.getElementById('tasa-mensual-badge');
         const resMontoFinal = document.getElementById('res-monto-final');
+        const resMontoReal = document.getElementById('res-monto-real');
         const resTotalInteres = document.getElementById('res-total-interes');
+        const resMultiplicador = document.getElementById('res-multiplicador');
         const resTotalInvertido = document.getElementById('res-total-invertido');
+        const resPorcentajeInteres = document.getElementById('res-porcentaje-interes');
+        
         const tablaCuerpo = document.getElementById('tabla-cuerpo');
         const btnCalcular = document.getElementById('btn-calcular');
+        const btnToggleDesglose = document.getElementById('btn-toggle-desglose');
+        const textDesglose = document.getElementById('text-desglose');
+        const thPeriodo = document.getElementById('th-periodo');
 
         // Toggle Tipo de Interés
         btnSimple.addEventListener('click', () => {
             tipoCalculo = 'simple';
-            btnSimple.className = "flex-1 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-indigo-600 text-white shadow-md";
-            btnCompuesto.className = "flex-1 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all text-slate-400 hover:text-white";
+            btnSimple.className = "flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all bg-indigo-600 text-white shadow-md flex items-center justify-center gap-2";
+            btnCompuesto.className = "flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-slate-400 hover:text-white flex items-center justify-center gap-2";
             containerFrecuencia.classList.add('hidden');
             calcular();
         });
 
         btnCompuesto.addEventListener('click', () => {
             tipoCalculo = 'compuesto';
-            btnCompuesto.className = "flex-1 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-indigo-600 text-white shadow-md";
-            btnSimple.className = "flex-1 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all text-slate-400 hover:text-white";
+            btnCompuesto.className = "flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all bg-indigo-600 text-white shadow-md flex items-center justify-center gap-2";
+            btnSimple.className = "flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-slate-400 hover:text-white flex items-center justify-center gap-2";
             containerFrecuencia.classList.remove('hidden');
+            calcular();
+        });
+
+        btnToggleDesglose.addEventListener('click', () => {
+            vistaAnual = !vistaAnual;
+            textDesglose.textContent = vistaAnual ? "Ver visión Mensual" : "Ver visión Anual";
+            thPeriodo.textContent = vistaAnual ? "Año" : "Mes";
             calcular();
         });
 
@@ -253,89 +335,220 @@
             return '$' + amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
+        // --- MOTOR DE CÁLCULO FINANCIERO MASTER ---
         function calcular() {
             const P = parseFloat(inputCapital.value) || 0;
             const rAnual = (parseFloat(inputTasa.value) || 0) / 100;
+            const inflacionAnual = (parseFloat(inputInflacion.value) || 0) / 100;
             let tValor = parseFloat(inputTiempo.value) || 0;
             const unidad = selectUnidadTiempo.value;
-            const pmt = parseFloat(inputAportacion.value) || 0; // Aportación mensual
+            const pmtVal = parseFloat(inputAportacion.value) || 0;
+            const pmtFreq = parseInt(selectFrecuenciaAportacion.value) || 12; // 12 = Mensual, 1 = Anual
 
-            // Convertir tiempo total a meses
+            // Actualizar Badge Tasa Efectiva Mensual
+            const tasaMensualEfectiva = (rAnual / 12) * 100;
+            tasaMensualBadge.textContent = `${tasaMensualEfectiva.toFixed(2)}% mens.`;
+
+            // Convertir plazo total a meses
             const mesesTotales = unidad === 'anios' ? Math.round(tValor * 12) : Math.round(tValor);
 
             if (mesesTotales <= 0) return;
 
-            let saldoInicial = P;
             let totalDepositado = P;
             let totalInteresAcumulado = 0;
+            let saldoActual = P;
 
-            tablaCuerpo.innerHTML = '';
+            let historiaPeriodos = [];
+            let chartLabels = [];
+            let chartPrincipalData = [];
+            let chartInteresData = [];
 
-            if (tipoCalculo === 'simple') {
-                const tasaMensual = rAnual / 12;
+            const nComp = tipoCalculo === 'compuesto' ? (parseInt(selectFrecuencia.value) || 12) : 1;
+            const tasaMensual = rAnual / 12;
 
-                for (let m = 1; m <= mesesTotales; m++) {
-                    // En interés simple, el interés del periodo se calcula sobre el capital base original + aportaciones acumuladas
-                    totalDepositado += (m === 1 ? 0 : pmt);
-                    
-                    const interesPeriodo = totalDepositado * tasaMensual;
-                    totalInteresAcumulado += interesPeriodo;
-                    const saldoFinal = totalDepositado + totalInteresAcumulado;
-
-                    agregarFilaTabla(m, totalDepositado, interesPeriodo, totalInteresAcumulado, saldoFinal);
+            for (let m = 1; m <= mesesTotales; m++) {
+                // Aportación Periódica
+                let aportacionDelMes = 0;
+                if (m > 1) {
+                    if (pmtFreq === 12) {
+                        aportacionDelMes = pmtVal;
+                    } else if (pmtFreq === 1 && m % 12 === 1) {
+                        aportacionDelMes = pmtVal;
+                    }
                 }
 
-            } else {
-                // Interés Compuesto mes a mes
-                const nComp : number = parseInt(selectFrecuencia.value) || 12; 
-                // Tasa efectiva por periodo de capitalización
-                const tasaEfectivaMensual = Math.pow(1 + rAnual / nComp, nComp / 12) - 1;
+                totalDepositado += aportacionDelMes;
+                saldoActual += aportacionDelMes;
 
-                let saldoActual = P;
+                let interesPeriodo = 0;
 
-                for (let m = 1; m <= mesesTotales; m++) {
-                    if (m > 1) {
-                        saldoActual += pmt;
-                        totalDepositado += pmt;
-                    }
+                if (tipoCalculo === 'simple') {
+                    interesPeriodo = totalDepositado * tasaMensual;
+                } else {
+                    // Tasa efectiva ajustada a la frecuencia de compounding
+                    const tasaEfectivaMensual = Math.pow(1 + rAnual / nComp, nComp / 12) - 1;
+                    interesPeriodo = saldoActual * tasaEfectivaMensual;
+                }
 
-                    const interesPeriodo = saldoActual * tasaEfectivaMensual;
-                    totalInteresAcumulado += interesPeriodo;
-                    saldoActual += interesPeriodo;
+                totalInteresAcumulado += interesPeriodo;
+                saldoActual += (tipoCalculo === 'compuesto' ? interesPeriodo : 0);
 
-                    agregarFilaTabla(m, totalDepositado, interesPeriodo, totalInteresAcumulado, saldoActual);
+                const saldoFinalTotal = tipoCalculo === 'simple' ? (totalDepositado + totalInteresAcumulado) : saldoActual;
+
+                historiaPeriodos.push({
+                    mes: m,
+                    anio: Math.ceil(m / 12),
+                    depositado: totalDepositado,
+                    interesPeriodo: interesPeriodo,
+                    interesAcumulado: totalInteresAcumulado,
+                    saldoFinal: saldoFinalTotal
+                });
+
+                // Registrar para gráficos (por año o por mes)
+                if (mesesTotales <= 24 || m % 12 === 0 || m === mesesTotales) {
+                    const labelText = unidad === 'anios' ? `Año ${Math.ceil(m/12)}` : `Mes ${m}`;
+                    chartLabels.push(labelText);
+                    chartPrincipalData.push(totalDepositado);
+                    chartInteresData.push(totalInteresAcumulado);
                 }
             }
 
-            // Actualizar tarjetas resumen
-            const montoFinalTotal = totalDepositado + totalInteresAcumulado;
-            resMontoFinal.textContent = formatUSD(montoFinalTotal);
+            const saldoFinalGlobal = tipoCalculo === 'simple' ? (totalDepositado + totalInteresAcumulado) : saldoActual;
+            
+            // Ajuste por Inflación (Valor Presente Real)
+            const aniosTotales = mesesTotales / 12;
+            const montoRealPoderCompra = saldoFinalGlobal / Math.pow(1 + inflacionAnual, aniosTotales);
+
+            // Métrica Multiplicador de Dinero
+            const multiplicador = totalDepositado > 0 ? (saldoFinalGlobal / totalDepositado).toFixed(2) : '0';
+            const pctInteresGenerado = totalDepositado > 0 ? ((totalInteresAcumulado / totalDepositado) * 100).toFixed(1) : '0';
+
+            // Actualizar UI Métricas
+            resMontoFinal.textContent = formatUSD(saldoFinalGlobal);
+            resMontoReal.textContent = `Poder de compra real: ${formatUSD(montoRealPoderCompra)}`;
             resTotalInteres.textContent = formatUSD(totalInteresAcumulado);
+            resMultiplicador.textContent = `Multiplicador: ${multiplicador}x capital`;
             resTotalInvertido.textContent = formatUSD(totalDepositado);
+            resPorcentajeInteres.textContent = `Ganancia neta: +${pctInteresGenerado}%`;
+
+            // Renderizar Tabla
+            renderizarTabla(historiaPeriodos);
+
+            // Renderizar Gráfico
+            renderizarGrafico(chartLabels, chartPrincipalData, chartInteresData);
         }
 
-        function agregarFilaTabla(periodo, depositado, interesPeriodo, interesAcum, saldoFinal) {
-            const tr = document.createElement('tr');
-            tr.className = "hover:bg-slate-800/40 transition-colors";
-            tr.innerHTML = `
-                <td class="p-3 text-center text-slate-400 font-sans">${periodo}</td>
-                <td class="p-3">${formatUSD(depositado)}</td>
-                <td class="p-3 text-indigo-300">+${formatUSD(interesPeriodo)}</td>
-                <td class="p-3 text-indigo-400">${formatUSD(interesAcum)}</td>
-                <td class="p-3 text-right font-bold text-emerald-400">${formatUSD(saldoFinal)}</td>
-            `;
-            tablaCuerpo.appendChild(tr);
+        function renderizarTabla(historia) {
+            tablaCuerpo.innerHTML = '';
+
+            let datosFiltrados = historia;
+
+            if (vistaAnual) {
+                // Agrupar por año
+                datosFiltrados = historia.filter((item, index, self) => 
+                    item.mes % 12 === 0 || item.mes === historia.length
+                );
+            }
+
+            datosFiltrados.forEach((item) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/40 transition-colors";
+                const periodoTexto = vistaAnual ? `Año ${item.anio}` : `Mes ${item.mes}`;
+
+                tr.innerHTML = `
+                    <td class="p-3 text-center text-slate-400 font-sans font-medium">${periodoTexto}</td>
+                    <td class="p-3">${formatUSD(item.depositado)}</td>
+                    <td class="p-3 text-indigo-300">+${formatUSD(item.interesPeriodo)}</td>
+                    <td class="p-3 text-indigo-400 font-semibold">${formatUSD(item.interesAcumulado)}</td>
+                    <td class="p-3 text-right font-bold text-emerald-400">${formatUSD(item.saldoFinal)}</td>
+                `;
+                tablaCuerpo.appendChild(tr);
+            });
         }
 
-        // Event Listeners para recálculo automático
-        [inputCapital, inputTasa, inputTiempo, selectUnidadTiempo, selectFrecuencia, inputAportacion].forEach(element => {
+        function renderizarGrafico(labels, principalData, interesData) {
+            const ctx = document.getElementById('chartProyeccion').getContext('2d');
+
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Intereses Ganados',
+                            data: interesData,
+                            borderColor: '#6366f1',
+                            backgroundColor: 'rgba(99, 102, 241, 0.3)',
+                            fill: true,
+                            tension: 0.3,
+                            borderWidth: 2,
+                            pointRadius: 3
+                        },
+                        {
+                            label: 'Principal Invertido',
+                            data: principalData,
+                            borderColor: '#64748b',
+                            backgroundColor: 'rgba(100, 116, 139, 0.2)',
+                            fill: true,
+                            tension: 0.1,
+                            borderWidth: 2,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: '#0f172a',
+                            titleColor: '#f8fafc',
+                            bodyColor: '#cbd5e1',
+                            borderColor: '#334155',
+                            borderWidth: 1,
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${formatUSD(context.raw)}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false, drawBorder: false },
+                            ticks: { color: '#64748b', font: { size: 10 } }
+                        },
+                        y: {
+                            grid: { color: 'rgba(51, 65, 85, 0.3)', drawBorder: false },
+                            ticks: {
+                                color: '#64748b',
+                                font: { size: 10 },
+                                callback: function(value) {
+                                    return '$' + (value >= 1000 ? (value / 1000) + 'k' : value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Event Listeners para recálculo interactivo en tiempo real
+        [inputCapital, inputTasa, inputTiempo, selectUnidadTiempo, selectFrecuencia, inputAportacion, selectFrecuenciaAportacion, inputInflacion].forEach(element => {
             element.addEventListener('input', calcular);
             element.addEventListener('change', calcular);
         });
 
         btnCalcular.addEventListener('click', calcular);
 
-        // Inicializar cálculo al cargar
+        // Inicializar Cálculo
         calcular();
     </script>
 </body>
