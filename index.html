@@ -263,11 +263,12 @@
             }
         }
 
+        // Formato con comas para millares y punto para decimales (en-US)
         function formatNumber(numStr) {
             if (numStr === 'Error' || numStr === 'NaN') return 'Error';
             if (numStr.endsWith('.')) return numStr;
             const parts = numStr.split('.');
-            parts[0] = Number(parts[0]).toLocaleString('es-ES');
+            parts[0] = Number(parts[0]).toLocaleString('en-US');
             return parts.join('.');
         }
 
