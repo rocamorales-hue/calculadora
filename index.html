@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CalcPro Master - Calculadora Avanzada</title>
+    <title>Calculadora</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Fuente Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <script>
         tailwind.config = {
@@ -20,10 +20,7 @@
                         sans: ['Inter', 'sans-serif'],
                     },
                     boxShadow: {
-                        'neon-blue': '0 0 25px rgba(59, 130, 246, 0.6), inset 0 0 10px rgba(59, 130, 246, 0.4)',
-                        'neon-rose': '0 0 25px rgba(244, 63, 94, 0.6), inset 0 0 10px rgba(244, 63, 94, 0.4)',
-                        'neon-indigo': '0 0 30px rgba(99, 102, 241, 0.7), inset 0 0 15px rgba(99, 102, 241, 0.5)',
-                        'soft-glow': '0 20px 50px -10px rgba(15, 23, 42, 0.8)',
+                        'soft-glow': '0 20px 40px -15px rgba(0, 0, 0, 0.5)',
                     }
                 }
             }
@@ -37,205 +34,135 @@
             -webkit-user-select: none;
         }
 
-        /* Botón Base */
+        /* Transiciones suaves en botones */
         .btn-calc {
-            transition: all 0.12s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transition: all 0.1s ease-in-out;
             position: relative;
             overflow: hidden;
         }
 
         .btn-calc:hover {
-            transform: translateY(-2px);
+            filter: brightness(1.15);
         }
 
         .btn-calc:active {
-            transform: translateY(1px) scale(0.94) !important;
+            transform: scale(0.95) !important;
         }
 
-        /* Resaltado ultra visible al presionar teclas (Físico / Clic) */
+        /* Resaltado al presionar tecla */
         .key-active {
-            transform: translateY(1px) scale(0.92) !important;
-            filter: brightness(1.6) contrast(1.2) !important;
-            box-shadow: 0 0 25px rgba(59, 130, 246, 0.8), inset 0 0 12px rgba(255, 255, 255, 0.6) !important;
-            border-color: rgba(147, 197, 253, 0.9) !important;
+            transform: scale(0.94) !important;
+            filter: brightness(1.4) !important;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5) !important;
         }
 
-        /* Scrollbar del Historial */
+        /* Scrollbar suave */
         .custom-scrollbar::-webkit-scrollbar {
-            width: 5px;
+            width: 4px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
             background: transparent;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(100, 116, 139, 0.4);
+            background: rgba(148, 163, 184, 0.2);
             border-radius: 10px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: rgba(148, 163, 184, 0.6);
+            background: rgba(148, 163, 184, 0.4);
         }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-blue-500 selection:text-white">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-blue-500 selection:text-white p-4">
 
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed top-5 right-5 bg-emerald-500 text-slate-950 px-4 py-2.5 rounded-2xl font-semibold text-sm shadow-xl flex items-center gap-2 opacity-0 pointer-events-none transition-all duration-300 z-50 transform -translate-y-2">
-        <i class="fa-solid fa-circle-check"></i>
-        <span>¡Copiado al portapapeles!</span>
+    <!-- Notificación Toast -->
+    <div id="toast" class="fixed top-5 right-5 bg-slate-800 border border-slate-700 text-slate-200 px-4 py-2.5 rounded-xl font-medium text-xs shadow-2xl flex items-center gap-2 opacity-0 pointer-events-none transition-all duration-300 z-50 transform -translate-y-2">
+        <i class="fa-solid fa-check text-emerald-400"></i>
+        <span>Copiado al portapapeles</span>
     </div>
 
-    <!-- Header -->
-    <header class="w-full max-w-5xl mx-auto p-4 sm:p-6 flex justify-between items-center">
-        <div class="flex items-center gap-3">
-            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/30">
-                <i class="fa-solid fa-calculator text-2xl text-white"></i>
-            </div>
-            <div>
-                <h1 class="font-extrabold text-xl tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">CalcPro <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">v2.0</span></h1>
-                <p class="text-xs text-slate-400">Diseño Suite Profesional</p>
-            </div>
-        </div>
-
-        <div class="flex items-center gap-2 sm:gap-3">
-            <!-- Botón Link a Intereses -->
-            <a href="intereses.html" class="flex items-center gap-2 px-3.5 py-2.5 rounded-2xl bg-indigo-600/20 text-indigo-300 hover:text-white hover:bg-indigo-600 transition-all border border-indigo-500/30 text-sm font-medium shadow-md">
-                <i class="fa-solid fa-percent text-indigo-400"></i>
-                <span class="hidden sm:inline">Intereses</span>
-            </a>
-
-            <!-- Botón Historial -->
-            <button id="toggle-history-btn" class="p-2.5 rounded-2xl bg-slate-900/80 text-slate-300 hover:text-white hover:bg-slate-800 transition-all border border-slate-800 shadow-md" title="Ver Historial">
-                <i class="fa-solid fa-clock-rotate-left"></i>
-            </button>
-
-            <!-- Botón Desplegar -->
-            <button id="open-modal-btn" class="flex items-center gap-2 px-3.5 py-2.5 rounded-2xl bg-slate-900/80 text-slate-300 hover:text-white hover:bg-slate-800 transition-all border border-slate-800 text-sm font-medium shadow-md">
-                <i class="fa-brands fa-github text-lg text-blue-400"></i>
-                <span class="hidden sm:inline">Desplegar</span>
-            </button>
-        </div>
+    <!-- Barra Superior Limpia -->
+    <header class="w-full max-w-md mx-auto py-2 flex justify-end items-center">
+        <button id="toggle-history-btn" class="p-2.5 rounded-xl bg-slate-900 text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-all border border-slate-800/80" title="Ver Historial">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+        </button>
     </header>
 
-    <!-- Main Content -->
-    <main class="flex-1 flex items-center justify-center p-4 w-full max-w-5xl mx-auto">
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 w-full max-w-4xl">
+    <!-- Contenedor Principal -->
+    <main class="flex-1 flex flex-col items-center justify-center w-full max-w-md mx-auto my-auto">
+        
+        <!-- Tarjeta de Calculadora -->
+        <div class="w-full bg-slate-900/80 backdrop-blur-xl border border-slate-800/80 rounded-3xl p-5 shadow-soft-glow flex flex-col justify-between relative overflow-hidden">
             
-            <!-- Calculadora Principal -->
-            <div class="md:col-span-7 lg:col-span-8 bg-slate-900/70 backdrop-blur-2xl border border-slate-800/80 rounded-3xl p-5 sm:p-7 shadow-soft-glow flex flex-col justify-between relative overflow-hidden">
-                
-                <!-- Pantalla de Display -->
-                <div id="copy-trigger" title="Haz clic para copiar" class="group bg-slate-950/80 border border-slate-800/80 rounded-2xl p-5 mb-5 flex flex-col justify-end items-end min-h-[130px] shadow-inner relative overflow-hidden cursor-pointer hover:border-slate-700 transition-all">
-                    <span class="absolute top-3 left-3 text-[10px] uppercase font-bold tracking-wider text-slate-500 group-hover:text-blue-400 transition-colors flex items-center gap-1">
-                        <i class="fa-regular fa-copy"></i> Copiar
+            <!-- Pantalla de Display -->
+            <div id="copy-trigger" title="Clic para copiar" class="group bg-slate-950/90 border border-slate-800/90 rounded-2xl p-5 mb-4 flex flex-col justify-end items-end min-h-[120px] shadow-inner relative cursor-pointer hover:border-slate-700 transition-all">
+                <span class="absolute top-3 left-3 text-[10px] uppercase font-semibold tracking-wider text-slate-500 group-hover:text-slate-300 transition-colors flex items-center gap-1 opacity-0 group-hover:opacity-100">
+                    <i class="fa-regular fa-copy"></i> Copiar
+                </span>
+                <!-- Expresión -->
+                <div id="expression-display" class="text-slate-400 text-xs font-mono h-5 tracking-wide truncate max-w-full"></div>
+                <!-- Valor Principal -->
+                <div id="main-display" class="text-4xl font-bold text-slate-100 tracking-wider truncate max-w-full transition-all duration-150">0</div>
+            </div>
+
+            <!-- Panel de Historial (Desplegable) -->
+            <div id="history-panel" class="hidden bg-slate-950/95 border border-slate-800/90 rounded-2xl p-4 mb-4 flex-col justify-between transition-all duration-300">
+                <div class="flex justify-between items-center pb-2.5 mb-2.5 border-b border-slate-800/80">
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-history text-blue-400"></i> Historial
                     </span>
-                    <!-- Expresión -->
-                    <div id="expression-display" class="text-slate-400 text-sm font-mono h-6 tracking-wide truncate max-w-full"></div>
-                    <!-- Valor Principal -->
-                    <div id="main-display" class="text-4xl sm:text-5xl font-bold text-white tracking-wider truncate max-w-full transition-all duration-150">0</div>
+                    <button id="clear-history-btn" class="text-xs text-slate-500 hover:text-rose-400 transition-colors flex items-center gap-1 px-2 py-0.5 rounded-md hover:bg-slate-900">
+                        <i class="fa-solid fa-trash-can"></i> Limpiar
+                    </button>
                 </div>
 
-                <!-- Teclado de Botones -->
-                <div class="grid grid-cols-4 gap-2.5 sm:gap-3">
-                    <!-- Fila Funciones Especiales -->
-                    <button data-key="sqr" class="btn-calc bg-slate-800/50 text-slate-300 hover:bg-slate-800 border border-slate-700/40 font-medium p-3.5 rounded-2xl text-sm flex items-center justify-center">x²</button>
-                    <button data-key="sqrt" class="btn-calc bg-slate-800/50 text-slate-300 hover:bg-slate-800 border border-slate-700/40 font-medium p-3.5 rounded-2xl text-sm flex items-center justify-center">√x</button>
-                    <button data-key="recip" class="btn-calc bg-slate-800/50 text-slate-300 hover:bg-slate-800 border border-slate-700/40 font-medium p-3.5 rounded-2xl text-sm flex items-center justify-center">1/x</button>
-                    <button data-key="%" class="btn-calc bg-slate-800/50 text-slate-300 hover:bg-slate-800 border border-slate-700/40 font-medium p-3.5 rounded-2xl text-base flex items-center justify-center">%</button>
-
-                    <!-- Fila 1 -->
-                    <button data-key="Clear" class="btn-calc bg-rose-500/15 text-rose-400 hover:bg-rose-500/25 border border-rose-500/30 font-bold p-4 rounded-2xl text-base sm:text-lg flex items-center justify-center">AC</button>
-                    <button data-key="Backspace" class="btn-calc bg-slate-800/70 text-slate-200 hover:bg-slate-700/80 border border-slate-700/50 font-medium p-4 rounded-2xl text-base sm:text-lg flex items-center justify-center">⌫</button>
-                    <button data-key="PlusMinus" class="btn-calc bg-slate-800/70 text-slate-200 hover:bg-slate-700/80 border border-slate-700/50 font-medium p-4 rounded-2xl text-base sm:text-lg flex items-center justify-center">⁺/₋</button>
-                    <button data-key="/" class="btn-calc bg-blue-600/80 text-white hover:bg-blue-600 border border-blue-400/30 font-semibold p-4 rounded-2xl text-lg flex items-center justify-center shadow-lg shadow-blue-600/20">÷</button>
-
-                    <!-- Fila 2 -->
-                    <button data-key="7" class="btn-calc bg-slate-800/30 text-slate-100 hover:bg-slate-700/50 border border-slate-800 font-medium p-4 rounded-2xl text-lg sm:text-xl flex items-center justify-center">7</button>
-                    <button data-key="8" class="btn-calc bg-slate-800/30 text-slate-100 hover:bg-slate-700/50 border border-slate-800 font-medium p-4 rounded-2xl text-lg sm:text-xl flex items-center justify-center">8</button>
-                    <button data-key="9" class="btn-calc bg-slate-800/30 text-slate-100 hover:bg-slate-700/50 border border-slate-800 font-medium p-4 rounded-2xl text-lg sm:text-xl flex items-center justify-center">9</button>
-                    <button data-key="*" class="btn-calc bg-blue-600/80 text-white hover:bg-blue-600 border border-blue-400/30 font-semibold p-4 rounded-2xl text-lg flex items-center justify-center shadow-lg shadow-blue-600/20">×</button>
-
-                    <!-- Fila 3 -->
-                    <button data-key="4" class="btn-calc bg-slate-800/30 text-slate-100 hover:bg-slate-700/50 border border-slate-800 font-medium p-4 rounded-2xl text-lg sm:text-xl flex items-center justify-center">4</button>
-                    <button data-key="5" class="btn-calc bg-slate-800/30 text-slate-100 hover:bg-slate-700/50 border border-slate-800 font-medium p-4 rounded-2xl text-lg sm:text-xl flex items-center justify-center">5</button>
-                    <button data-key="6" class="btn-calc bg-slate-800/30 text-slate-100 hover:bg-slate-700/50 border border-slate-800 font-medium p-4 rounded-2xl text-lg sm:text-xl flex items-center justify-center">6</button>
-                    <button data-key="-" class="btn-calc bg-blue-600/80 text-white hover:bg-blue-600 border border-blue-400/30 font-semibold p-4 rounded-2xl text-lg flex items-center justify-center shadow-lg shadow-blue-600/20">-</button>
-
-                    <!-- Fila 4 -->
-                    <button data-key="1" class="btn-calc bg-slate-800/30 text-slate-100 hover:bg-slate-700/50 border border-slate-800 font-medium p-4 rounded-2xl text-lg sm:text-xl flex items-center justify-center">1</button>
-                    <button data-key="2" class="btn-calc bg-slate-800/30 text-slate-100 hover:bg-slate-700/50 border border-slate-800 font-medium p-4 rounded-2xl text-lg sm:text-xl flex items-center justify-center">2</button>
-                    <button data-key="3" class="btn-calc bg-slate-800/30 text-slate-100 hover:bg-slate-700/50 border border-slate-800 font-medium p-4 rounded-2xl text-lg sm:text-xl flex items-center justify-center">3</button>
-                    <button data-key="+" class="btn-calc bg-blue-600/80 text-white hover:bg-blue-600 border border-blue-400/30 font-semibold p-4 rounded-2xl text-lg flex items-center justify-center shadow-lg shadow-blue-600/20">+</button>
-
-                    <!-- Fila 5 -->
-                    <button data-key="0" class="col-span-2 btn-calc bg-slate-800/30 text-slate-100 hover:bg-slate-700/50 border border-slate-800 font-medium p-4 rounded-2xl text-lg sm:text-xl flex items-center justify-center">0</button>
-                    <button data-key="." class="btn-calc bg-slate-800/30 text-slate-100 hover:bg-slate-700/50 border border-slate-800 font-medium p-4 rounded-2xl text-lg sm:text-xl flex items-center justify-center">.</button>
-                    <button data-key="Enter" class="btn-calc bg-indigo-600 text-white hover:bg-indigo-500 border border-indigo-400/40 font-bold p-4 rounded-2xl text-xl flex items-center justify-center shadow-neon-indigo">=</button>
+                <div id="history-list" class="space-y-2 max-h-[200px] overflow-y-auto custom-scrollbar pr-1">
+                    <div id="empty-history" class="text-center py-6 text-slate-600 text-xs">
+                        Sin operaciones recientes
+                    </div>
                 </div>
             </div>
 
-            <!-- Panel de Historial -->
-            <div id="history-panel" class="hidden md:flex md:col-span-5 lg:col-span-4 bg-slate-900/70 backdrop-blur-2xl border border-slate-800/80 rounded-3xl p-5 flex-col justify-between shadow-soft-glow transition-all duration-300">
-                <div>
-                    <div class="flex justify-between items-center pb-4 mb-3 border-b border-slate-800">
-                        <h2 class="font-bold text-slate-200 flex items-center gap-2">
-                            <i class="fa-solid fa-history text-blue-400"></i> Historial
-                        </h2>
-                        <button id="clear-history-btn" class="text-xs text-slate-400 hover:text-rose-400 transition-colors flex items-center gap-1.5 px-2 py-1 rounded-lg hover:bg-rose-500/10">
-                            <i class="fa-solid fa-trash-can"></i> Limpiar
-                        </button>
-                    </div>
+            <!-- Teclado -->
+            <div class="grid grid-cols-4 gap-2">
+                <!-- Funciones Especiales -->
+                <button data-key="sqr" class="btn-calc bg-slate-800/40 text-slate-300 hover:bg-slate-800/70 border border-slate-800 font-medium p-3 rounded-xl text-xs flex items-center justify-center">x²</button>
+                <button data-key="sqrt" class="btn-calc bg-slate-800/40 text-slate-300 hover:bg-slate-800/70 border border-slate-800 font-medium p-3 rounded-xl text-xs flex items-center justify-center">√x</button>
+                <button data-key="recip" class="btn-calc bg-slate-800/40 text-slate-300 hover:bg-slate-800/70 border border-slate-800 font-medium p-3 rounded-xl text-xs flex items-center justify-center">1/x</button>
+                <button data-key="%" class="btn-calc bg-slate-800/40 text-slate-300 hover:bg-slate-800/70 border border-slate-800 font-medium p-3 rounded-xl text-sm flex items-center justify-center">%</button>
 
-                    <!-- Lista de Operaciones -->
-                    <div id="history-list" class="space-y-2.5 max-h-[350px] overflow-y-auto custom-scrollbar pr-1">
-                        <div id="empty-history" class="text-center py-12 text-slate-500 text-sm">
-                            <i class="fa-solid fa-calculator text-3xl mb-3 opacity-20 block"></i>
-                            Sin historial disponible
-                        </div>
-                    </div>
-                </div>
+                <!-- Fila 1 -->
+                <button data-key="Clear" class="btn-calc bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/20 font-semibold p-3.5 rounded-xl text-sm flex items-center justify-center">AC</button>
+                <button data-key="Backspace" class="btn-calc bg-slate-800/60 text-slate-300 hover:bg-slate-800 border border-slate-800 font-medium p-3.5 rounded-xl text-sm flex items-center justify-center">⌫</button>
+                <button data-key="PlusMinus" class="btn-calc bg-slate-800/60 text-slate-300 hover:bg-slate-800 border border-slate-800 font-medium p-3.5 rounded-xl text-sm flex items-center justify-center">⁺/₋</button>
+                <button data-key="/" class="btn-calc bg-blue-600/70 text-white hover:bg-blue-600 border border-blue-500/30 font-semibold p-3.5 rounded-xl text-base flex items-center justify-center">÷</button>
 
-                <div class="pt-3 border-t border-slate-800/80 text-[11px] text-slate-500 text-center">
-                    Toca un registro para reinsertar su resultado
-                </div>
+                <!-- Fila 2 -->
+                <button data-key="7" class="btn-calc bg-slate-800/30 text-slate-200 hover:bg-slate-800/60 border border-slate-800/60 font-medium p-3.5 rounded-xl text-base flex items-center justify-center">7</button>
+                <button data-key="8" class="btn-calc bg-slate-800/30 text-slate-200 hover:bg-slate-800/60 border border-slate-800/60 font-medium p-3.5 rounded-xl text-base flex items-center justify-center">8</button>
+                <button data-key="9" class="btn-calc bg-slate-800/30 text-slate-200 hover:bg-slate-800/60 border border-slate-800/60 font-medium p-3.5 rounded-xl text-base flex items-center justify-center">9</button>
+                <button data-key="*" class="btn-calc bg-blue-600/70 text-white hover:bg-blue-600 border border-blue-500/30 font-semibold p-3.5 rounded-xl text-base flex items-center justify-center">×</button>
+
+                <!-- Fila 3 -->
+                <button data-key="4" class="btn-calc bg-slate-800/30 text-slate-200 hover:bg-slate-800/60 border border-slate-800/60 font-medium p-3.5 rounded-xl text-base flex items-center justify-center">4</button>
+                <button data-key="5" class="btn-calc bg-slate-800/30 text-slate-200 hover:bg-slate-800/60 border border-slate-800/60 font-medium p-3.5 rounded-xl text-base flex items-center justify-center">5</button>
+                <button data-key="6" class="btn-calc bg-slate-800/30 text-slate-200 hover:bg-slate-800/60 border border-slate-800/60 font-medium p-3.5 rounded-xl text-base flex items-center justify-center">6</button>
+                <button data-key="-" class="btn-calc bg-blue-600/70 text-white hover:bg-blue-600 border border-blue-500/30 font-semibold p-3.5 rounded-xl text-base flex items-center justify-center">-</button>
+
+                <!-- Fila 4 -->
+                <button data-key="1" class="btn-calc bg-slate-800/30 text-slate-200 hover:bg-slate-800/60 border border-slate-800/60 font-medium p-3.5 rounded-xl text-base flex items-center justify-center">1</button>
+                <button data-key="2" class="btn-calc bg-slate-800/30 text-slate-200 hover:bg-slate-800/60 border border-slate-800/60 font-medium p-3.5 rounded-xl text-base flex items-center justify-center">2</button>
+                <button data-key="3" class="btn-calc bg-slate-800/30 text-slate-200 hover:bg-slate-800/60 border border-slate-800/60 font-medium p-3.5 rounded-xl text-base flex items-center justify-center">3</button>
+                <button data-key="+" class="btn-calc bg-blue-600/70 text-white hover:bg-blue-600 border border-blue-500/30 font-semibold p-3.5 rounded-xl text-base flex items-center justify-center">+</button>
+
+                <!-- Fila 5 -->
+                <button data-key="0" class="col-span-2 btn-calc bg-slate-800/30 text-slate-200 hover:bg-slate-800/60 border border-slate-800/60 font-medium p-3.5 rounded-xl text-base flex items-center justify-center">0</button>
+                <button data-key="." class="btn-calc bg-slate-800/30 text-slate-200 hover:bg-slate-800/60 border border-slate-800/60 font-medium p-3.5 rounded-xl text-base flex items-center justify-center">.</button>
+                <button data-key="Enter" class="btn-calc bg-blue-600 text-white hover:bg-blue-500 border border-blue-400/30 font-semibold p-3.5 rounded-xl text-lg flex items-center justify-center">=</button>
             </div>
-
         </div>
     </main>
 
-    <!-- Modal GitHub Pages -->
-    <div id="github-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-xl w-full p-6 shadow-2xl transform scale-95 transition-transform duration-300 custom-scrollbar max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center pb-4 border-b border-slate-800">
-                <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                    <i class="fa-brands fa-github text-blue-400 text-xl"></i> Despliegue Express en GitHub Pages
-                </h3>
-                <button id="close-modal-btn" class="text-slate-400 hover:text-white p-2 text-xl">&times;</button>
-            </div>
-
-            <div class="py-4 space-y-3 text-slate-300 text-sm leading-relaxed">
-                <ol class="list-decimal list-inside space-y-2.5">
-                    <li class="bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80">
-                        <strong class="text-white">Repositorio:</strong> Crea un nuevo repo público en GitHub.
-                    </li>
-                    <li class="bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80">
-                        <strong class="text-white">Archivo:</strong> Guarda este código exactamente como <code class="bg-slate-800 text-amber-300 px-1.5 py-0.5 rounded">index.html</code> y haz commit a la rama <code class="text-blue-400">main</code>.
-                    </li>
-                    <li class="bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80">
-                        <strong class="text-white">Publicar:</strong> Ve a <em>Settings > Pages</em>, selecciona la rama <code class="text-blue-400">main</code> en "Build and deployment" y guarda.
-                    </li>
-                </ol>
-            </div>
-
-            <div class="pt-3 border-t border-slate-800 flex justify-end">
-                <button id="close-modal-footer" class="px-5 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-500 font-medium transition-colors text-sm">Entendido</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Footer -->
-    <footer class="w-full max-w-5xl mx-auto p-4 text-center text-xs text-slate-500">
-        CalcPro Suite • Optimizado para GitHub Pages
-    </footer>
+    <footer class="py-2"></footer>
 
     <script>
         // --- ESTADO DE LA CALCULADORA ---
@@ -253,12 +180,6 @@
         const clearHistoryBtn = document.getElementById('clear-history-btn');
         const toast = document.getElementById('toast');
         const copyTrigger = document.getElementById('copy-trigger');
-
-        const githubModal = document.getElementById('github-modal');
-        const openModalBtn = document.getElementById('open-modal-btn');
-        const closeModalBtn = document.getElementById('close-modal-btn');
-        const closeModalFooter = document.getElementById('close-modal-footer');
-
         const toggleHistoryBtn = document.getElementById('toggle-history-btn');
         const historyPanel = document.getElementById('history-panel');
 
@@ -266,13 +187,12 @@
         function updateDisplay() {
             mainDisplay.textContent = formatNumber(currentValue);
             if (currentValue.length > 10) {
-                mainDisplay.className = "text-2xl sm:text-3xl font-bold text-white tracking-wider truncate max-w-full transition-all duration-150";
+                mainDisplay.className = "text-2xl font-bold text-slate-100 tracking-wider truncate max-w-full transition-all duration-150";
             } else {
-                mainDisplay.className = "text-4xl sm:text-5xl font-bold text-white tracking-wider truncate max-w-full transition-all duration-150";
+                mainDisplay.className = "text-4xl font-bold text-slate-100 tracking-wider truncate max-w-full transition-all duration-150";
             }
         }
 
-        // Formato con comas para millares y punto para decimales (en-US)
         function formatNumber(numStr) {
             if (numStr === 'Error' || numStr === 'NaN') return 'Error';
             if (numStr.endsWith('.')) return numStr;
@@ -358,7 +278,6 @@
             updateDisplay();
         }
 
-        // --- FUNCIONES CIENTÍFICO-RÁPIDAS ---
         function executeSpecial(type) {
             let val = parseFloat(currentValue);
             if (isNaN(val)) return;
@@ -436,10 +355,10 @@
 
             history.forEach((item) => {
                 const div = document.createElement('div');
-                div.className = 'p-3 bg-slate-950/50 hover:bg-slate-800/60 rounded-2xl cursor-pointer border border-slate-800/80 transition-all text-right group';
+                div.className = 'p-2 bg-slate-900/60 hover:bg-slate-900 rounded-xl cursor-pointer border border-slate-800/60 transition-all text-right group';
                 div.innerHTML = `
-                    <div class="text-[11px] text-slate-400 font-mono group-hover:text-blue-300 transition-colors">${item.expr}</div>
-                    <div class="text-base font-semibold text-slate-100">${formatNumber(item.result)}</div>
+                    <div class="text-[10px] text-slate-500 font-mono group-hover:text-blue-400 transition-colors">${item.expr}</div>
+                    <div class="text-sm font-medium text-slate-200">${formatNumber(item.result)}</div>
                 `;
                 div.addEventListener('click', () => {
                     currentValue = item.result;
@@ -455,12 +374,12 @@
             renderHistory();
         });
 
-        // --- ENTRADA Y EFECTO VISUAL DE TECLAS ---
+        // --- TECLAS Y EVENTOS ---
         function triggerKeyAnimation(key) {
             const button = document.querySelector(`[data-key="${key}"]`);
             if (button) {
                 button.classList.add('key-active');
-                setTimeout(() => button.classList.remove('key-active'), 160);
+                setTimeout(() => button.classList.remove('key-active'), 140);
             }
         }
 
@@ -485,7 +404,6 @@
             });
         });
 
-        // Soporte Teclado Físico
         window.addEventListener('keydown', (e) => {
             let key = e.key;
             if (key === 'Escape' || key === 'c' || key === 'C') key = 'Clear';
@@ -500,7 +418,6 @@
             }
         });
 
-        // Copiar al Portapapeles
         copyTrigger.addEventListener('click', () => {
             if (currentValue === 'Error') return;
             navigator.clipboard.writeText(currentValue);
@@ -511,30 +428,12 @@
             setTimeout(() => {
                 toast.classList.remove('opacity-100', 'translate-y-0');
                 toast.classList.add('opacity-0', 'pointer-events-none', '-translate-y-2');
-            }, 2000);
+            }, 1800);
         });
-
-        // Modal e Historial Móvil
-        function toggleModal(show) {
-            if (show) {
-                githubModal.classList.remove('opacity-0', 'pointer-events-none');
-                githubModal.children[0].classList.replace('scale-95', 'scale-100');
-            } else {
-                githubModal.classList.add('opacity-0', 'pointer-events-none');
-                githubModal.children[0].classList.replace('scale-100', 'scale-95');
-            }
-        }
-
-        openModalBtn.addEventListener('click', () => toggleModal(true));
-        closeModalBtn.addEventListener('click', () => toggleModal(false));
-        closeModalFooter.addEventListener('click', () => toggleModal(false));
-        githubModal.addEventListener('click', (e) => { if (e.target === githubModal) toggleModal(false); });
 
         toggleHistoryBtn.addEventListener('click', () => {
             historyPanel.classList.toggle('hidden');
-            if (!historyPanel.classList.contains('hidden')) {
-                historyPanel.classList.add('flex', 'col-span-12');
-            }
+            historyPanel.classList.toggle('flex');
         });
 
         updateDisplay();
